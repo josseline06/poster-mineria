@@ -1,0 +1,245 @@
+\documentclass{sciposter}
+\usepackage{lipsum}
+\usepackage{epsfig}
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% Para Tablas
+\usepackage{multicol}
+\usepackage{multirow}
+\usepackage{capt-of}
+
+% Para gráficas propias
+\usepackage{pst-all}
+\usepackage{multido,pstricks}
+
+\usepackage{graphicx,url}
+
+% Idioma
+\usepackage[spanish]{babel}   
+
+% Codificación
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+%\usepackage{fancybullets}
+
+% Para algoritmos
+\usepackage{algorithm}
+\usepackage[noend]{algpseudocode}
+
+% Se pueden crear comandos propios de theorems
+\newtheorem{Def}{Definici\'on}
+
+% Título del proyecto
+\title{An\'alisis de Sentimientos\\Un caso en reseñas de pel\'iculas}
+
+% Nombre de los autores
+\author{Ybrahin Mart\'inez, Josseline Perdomo}
+
+% Dirección de la Universidad
+\institute 
+{Escuela de Computación\\
+Facultad de Ciencias \\ 
+Universidad Central de Venezuela (UCV)\\
+  Av. Paseo Los Ilustres, Los Chaguaramos, Caracas, Venezuela}
+  
+% Correo electrónico
+\email{{ybrahin.martinez,josseline.perdomo},{(@ciens.ucv.ve})}
+
+% Logos de universidad y facultad
+\rightlogo[1]{logociens}
+\leftlogo[1.2]{logo-ucv}
+
+\begin{document}
+%define conference poster is presented at (appears as footer)
+
+\conference{{\bf I-2015}, Miner\'ia de Datos, Mayo de 2016, Caracas, Venezuela}
+
+%\LEFTSIDEfootlogo  
+% Uncomment to put footer logo on left side, and 
+% conference name on right side of footer
+
+% Some examples of caption control (remove % to check result)
+
+%\renewcommand{\algorithmname}{Algoritme} % for Dutch
+
+%\renewcommand{\mastercapstartstyle}[1]{\textit{\textbf{#1}}}
+%\renewcommand{\algcapstartstyle}[1]{\textsc{\textbf{#1}}}
+%\renewcommand{\algcapbodystyle}{\bfseries}
+%\renewcommand{\thealgorithm}{\Roman{algorithm}}
+
+\maketitle
+
+%%% Begin of Multicols-Enviroment
+\begin{multicols}{3}
+
+%%% Abstract
+\begin{abstract}
+El \emph{An\'alisis de Sentimientos} es el estudio computacional de c\'omo las opiniones, actitudes, emociones y perspectivas son expresadas el lenguaje \cite{Potts:2011}. La competici\'on \emph{Bag of Words Meets Bags of Popcorn} del portal especializado en competencias de miner\'ia de datos \emph{Kaggle} \cite{Kaggle:2014} propone un caso aplicado a los reseñas de pel\'iculas del portal IMDb, proporcionando datos para resolver el problema usando \emph{Aprendizaje Supervisado} o \emph{No Nupervisado}, en el que cada reseña debe ser clasificado como positivo o negativo. Muchas de las soluciones publicadas por varios investigadores del \'area se enfocan en usar t\'ecnicas de aprendizaje supervisado como Na\"ive Bayes, M\'axima Entrop\'ia o SVM a pesar de que existe una gran variedad de clasificadores actualmente. Este paper se basa en la soluci\'on propuesta por H.~Parmar, S.~Bhanderi y G.~Shah aplicando \emph{Random Forest} \cite{Parmar:Bhanderi:Shah:2014}, con dos modalidades de generar el \emph{Words Vector} generando interesantes resultados, con una precisi\'on (accuracy) de 0.84, un valor bastante elevado en una aplicaci\'on de miner\'ia de datos en la que predomina la ambi\"uedad y los datos algunas veces son complicados de manejar.
+\end{abstract}
+
+%%% Introduction
+\section{Introducci\'on}
+\PARstart{E}{l} incremento de los datos por parte de opiniones en blogs, redes sociales, comercios electr\'onicos ha aumentado exponencialmente en la \'ultima d\'ecada; esta gran cantidad de datos est\'a jugando un papel muy importante en la toma de decisiones. La raz\'on es clara, las organizaciones quieren analizar y evaluar el impacto de sus productos, desean conocer los gustos de sus consumidores, empleando esta t\'ecnica, como consecuencia, se ahorran una importante cantidad de tiempo y dinero que ser\'ia invertida en sondeos, obteniendo los mismos resultados. No s\'olo las organizaciones eval\'uan las opiniones en la internet, hoy en d\'ia la mayor\'ia de las personas no compran cosas sin hacer antes un an\'alisis de productos en internet, la gente busca comentarios que verifiquen su calidad y luego toma su decisi\'on. En la actualidad, podr\'ia aseverarse que gran parte de la toma de decisiones es social, por lo que analizar los sentimientos juega un rol fundamental.
+\\\\
+El an\'alisis de sentimientos es un tema dif\'icil en \emph{Machine Learning}. Las personas expresan sus emociones en un lenguaje que a menudo es oscurecida por el sarcasmo, la ambig\"uedad y juegos de palabras, todo lo cual podr\'ia ser muy engañoso para los seres humanos, más aún para las computadoras. \cite{Kaggle:2014}. Existe una amplia gama de estados de \'animos y emociones que un humano puede expresar, sin embargo, \'estos podr\'ian agruparse en dos principales categor\'ias: buenos y malos.
+\\\\
+Este paper toma como caso de estudio las reseñas a pel\'iculas proporcionadas por usuarios del portal IMDb \cite{IMDb:2016}, bajo un enfoque de \emph{Aprendizaje Supervisado}, en el que cada una de las reseñas que forman parte del conjunto de entrenamiento es denominada como buena o mala, siguiendo la simplificaci\'on de sentimientos que hemos comentado anteriormente.
+% END Introduccion
+
+% Analisis Exploratorio
+\section{An\'alisis Exploratorio de Datos}
+\PARstart{E}{l}  conjunto de datos est\'a constituidos de tres caracter\'isticas o columnas, el identificador un\'ivoco de la reseña, el texto de la reseña en idioma ingl\'es y un numero entre 1 o 0 que indica el sentimiento, bueno o malo respectivamente. Se vi\'o como era la proporci\'on de las reseñas y se encontr\'o que estaban completamente balanceadas. La tabla de abajo se encuentran el n\'umero de reseñas.
+
+\begin{table}[h]
+\centering
+\captionof{table}{La proporci\'on de las reseñas de acuerdo a su sentimiento.}\label{tab:1}
+\begin{tabular}{ |c|c| }
+\hline
+Buenos & 12500\\
+Malos  & 12500\\
+\hline
+Total & 25000\\
+\hline
+\end{tabular}
+\end{table}
+
+Las reseñas tambi\'en contienen car\'acteres especiales, as\'i como etiquetas del lenguaje de marcado HTML, por lo que se realiz\'o un an\'alisis de cu\'ales palabras y car\'acteres ten\'ian que retirarse del texto, ya que estas no proporcionar\'ian informaci\'on relevante para el estudio.
+% END Analisis Exploratorio
+
+\section{Preparaci\'on de los Datos}
+% BEGIN Preprocesamiento
+\PARstart{L}{a} etapa de preprocesamiento es de suma importancia en el An\'alisis de Sentimientos, y en general en cualquier tarea de Miner\'ia de Texto, por lo que es necesario que sea elaborado y ahonde en detalles. A continuaci\'on cada una de las etapas de la preparaci\'on del texto:
+\\\\
+\subsection{Limpieza de Datos}
+Limpiar cada reseña consisti\'o en remover caracteres y etiquetas HTML que no aportaban ning\'un tipo de informaci\'on relevante relacionada con las emociones del texto, los elementos removidos fueron: \{<br>, \textbackslash, / , " \}.
+\\\\
+Sin embargo, no todos los tipos de etiquetas HTML o caracteres especiales fueron removidos, al igual que se mantuvo las palabras en may\'uscula, ya que si presentan un valor importante, dado que destacan palabras de vital importancia sem\'antica a la hora de la clasificaci\'on de las reseñas, \'estos son: \{<em>, <i>, emoticones, signos de exclamaci\'on\}.
+\\\\
+\subsection{Tokenizaci\'on}
+Tokenizar se refiere a la tarea de dividir cada reseña en sus partes constituyentes, es decir, dividirla en unidades ling\"uisticas como palabras, signos de puntuaci\'on, etc. Estas unidades se denominan \emph{tokens}. No hay una sola forma de tokenizar, el algoritmo apropiado depende de la aplicaci\'on \cite{Potts:2011}.
+\\\\
+Dado el formato de cada reseña en el dataset y lo que comentamos en el apartado anterior, un token puede ser: 
+\begin{itemize}
+\item Palabras.
+\item Signos de puntuaci\'on
+\item Etiquetas HTML
+\item Signos de puntuaci\'on + Letras, conmunmente conocidos como \emph{emoticones}, siendo relevantes ya que gracias al impacto de las redes sociales, muchas personas complementan sus comentarios agregando formas gr\'aficas de expresi\'on.
+\end{itemize}
+El tokenizador usado para este paper se llama \emph{TweetTokenizer} encontrado en la libreria de lenguaje natural NLTK \cite{NLTK:2016}.
+\\
+Ahora, ya tenemos cada una de las reseñas convertidas en un \emph{Bag-of-Words}, ahora necesitamos tomar los tokens m\'as importantes, es decir, eliminar las palabras sin significado relevante, tambi\'en denominadas \emph{Stop Words}, com\'unmente como art\'iculos, pronombres, preposiciones, etc.
+\\\\
+\subsection{Selecci\'on de Caracter\'isticas}
+\'Ultima instancia en la preparaci\'on del texto. Juega un rol fundamental en la clasificaci\'ion, ya que esto se refiere a un enfoque que define la manera en que esas caracter\'isticas se van a utilizar para clasificar nuevos datos para el tipo específico de clase \cite{Parmar:Bhanderi:Shah:2014}.
+\\\\
+Se desea obtener un \emph{Words-Vector}, que se formar\'a con elementos proveniente de la composici\'on de los tokens iniciales generando tokens m\'as complejos, esto se denomina \emph{N-gram}, donde se toma \emph{N} tokens para formar solo un nuevo token, donde $N \geq 1$, siendo el caso base $N = 1$, denominado \emph{Unigram} es el ideal en cuanto a resultados para an\'alisis de sentimientos y es el usado en este paper.
+\\\\
+Una vez definido el enfoque que seguir\'a la interpretaci\'on de los tokens, finalmente queda es asignarle un valor num\'erico a cada token. En este paper hemos experimentado con dos modelos de \emph{Words-Vector}:
+\begin{itemize}
+\item \emph{Frecuencia de Palabras}: dado una reseña, cuenta la cantidad de apariciones de cada token en un corpus.
+\item \emph{Frecuencia de Palabras -- Frecuencia inversa de documento}: dado una reseña cuenta la cantidad de apariciones de cada token dado un corpus, sin embargo le asigna a cada token un peso de acuerdo a la proporci\'on, de dicho token en todo el corpus, a mayor peso, mayor relevancia. 
+\end{itemize}
+% END Preparacion de los Datos
+
+% Breve definición del algoritmo escogido por ustedes y razonamiento detrás de esto.
+\section{Enfoque Propuesto: Random Forest}
+\PARstart{E}{n} esta secci\'on hablaremos acerca de las razones por la que hemos elegido un enfoque con Random Forest, adem\'as de c\'omo hemos ajustado este algoritmo a el caso de estudio.
+\\\\
+En Random Forest \cite{Breiman:2001}, que fue el primer paper en el que se combin\'o m\'ultiples \'arboles de decisi\'on, se explica que este clasificador proporciona dos tipos de aleatoriedad: con respecto a los datos y con respecto a las caracter\'isticas, usando el concepto de \emph{Bagging} y \emph{Boostrapping}. A diferencia de usar solo un \emph{\'Arbol de Decisi\'on}, Random Forest es un clasificador muy robusto al ruido debido a la aleatoriedad que proporciona \cite{Parmar:Bhanderi:Shah:2014} al ser un \emph{Ensemble Method}, es decir, combina los resultados de m\'ultiples clasificadores para aumentar la precisi\'on de la predicci\'on.
+\\\\
+Random Forest trabaja con tres par\'ametros:
+\begin{itemize}
+\item N\'umeros de \'arboles a construir en el \emph{Decision Forest}.
+\item N\'umero de caracter\'isticas seleccionadas aleatoriamente.
+\item Profundidad de todos los \'arboles.
+\end{itemize}
+
+Cada uno de los par\'ametros tienen su propia importancia  e influencia hacia la predicci\'on generada. El \emph{N\'umero de \'arboles} linealmente aumenta la precisi\'on del modelo. \ref{tab:2}\ref{tab:3} Mientras mayor sea el tamaño de los bosques, mayor es la exactitud, pero la precisi\'on converger\'a. En los experimentos realizados, hemos probado con diversos valores de \emph{N\'umero de \'arboles} para validar esta premisa. La profundidad del \'arbol tambi\'en es importante, si se usa un valor muy pequeño, el modelo sufrir\'a \emph{Under-Fitting}. 
+\\\\
+En l\'ineas generales, este algoritmo es bastante robusto, preciso y sencillo de manejar y entender su funcionamiento, por lo que hemos elegido este enfoque con respecto a soluciones t\'ipicas del \'area como Na\"ive Bayes o M\'axima Entrop\'ia. 
+
+\section{Experimentos y Resultados}
+\PARstart{L}{os} resultados obtenidos de los experimentos realizados se encuentran en las siguientes tablas, para esto los datos originales se dividieron en \emph{Entrenamiento} y \emph{Prueba} usando muestreo estratificado con validaci\'on cruzada para mantener las clases balanceadas.
+\\
+Se realizaron en el lenguaje Python con la ayuda de la librer\'ia de \emph{Machine Learning}, SciKit-Learn\cite{SciKit:2016}
+
+\begin{table}
+\centering
+\captionof{table}{M\'etricas de evaluaci\'on del modelo.}\label{tab:2}
+\begin{tabular}{ |c|c|c|c|c|c|c|c|c| }
+\hline
+\multicolumn{1}{|c}{Trees}& \multicolumn{2}{|c|}{Accuaracy}& \multicolumn{2}{c|}{Precision} & \multicolumn{2}{c|}{Recall} & \multicolumn{2}{c|}{F1--Score}\\
+\hline
+10 & 0.77 & 0.78 & 0.77 & 0.79 & 0.77 & 0.78 & 0.77 & 0.78 \\
+
+50 & 0.84 & 0.84 & 0.84 & 0.84 & 0.84 & 0.84 & 0.84 & 0.83 \\
+
+100& 0.84 & 0.84 & 0.84 & 0.84 & 0.84 & 0.84 & 0.84 & 0.84 \\
+\hline
+\end{tabular}
+\end{table}
+
+En la tabla anterior se puede apreciar los valores obtenidos al evaluar el modelo con el conjunto de \emph{Prueba}, es claro que a medida que aumenta la cantidad de \'arboles de decisi\'on el \emph{Accuaracy} aument\'o, al igual que las otras medidas.
+
+\begin{table}[h]
+\centering
+\captionof{table}{Resultados de la clasificaci\'on. }\label{tab:3}
+\begin{tabular}{ |c|c|c|c|c|c|c|c|c| }
+\hline
+\multicolumn{1}{|c}{Trees}& \multicolumn{2}{|c|}{Good--Good}& \multicolumn{2}{c|}{Bad--Bad} & \multicolumn{2}{c|}{Good--Bad} & \multicolumn{2}{c|}{Bad--Good}\\
+\hline
+10 & 2216 & 2268 & 2578 & 2629 & 574 & 496 & 909 & 857 \\
+
+50 & 2560 & 2556 & 2661 & 2663 & 464 & 462 & 565 & 569 \\
+
+100& 2601 & 2586 & 2666 & 2692 & 459 & 539 & 524 & 433 \\
+\hline
+\end{tabular}
+\end{table}
+
+En la tabla anterior se puede apreciar los resultados obtenidos de las proporciones de la clasificaci\'on de las reseñas en el conjunto de de \emph{Prueba} tomando diferentes n\'umeros de \'arboles de decisi\'on as\'i como con los modelos de \emph{Words-Vector}. Con dichos resultados se ve clara la tendencia, el modelo es mejor clasificando las reseñas que son malas que las buenas. Es claro que usando \emph{Random Forest} es un buen enfoque para comenzar y adem\'as da buenos resultados, sin embargo no es el mejor, uno de los mejores enfoque en la actualidad para la miner\'ia de texto, es el uso de algoritmos de \emph{Deep Learning}. En futuros trabajos se podr\'ia profundizar el \'area y utilizar este enfoque y comparar los resultados obtenidos.
+\bibliographystyle{plain}
+\begin{thebibliography}{1}
+
+\bibitem{Kaggle:2014}
+\newblock Bag of Words Meets Bags of Popcorn.
+\newblock {\url{www.kaggle.com/c/word2vec-nlp-tutorial}}, 2014.
+
+\bibitem{Potts:2011}
+ C~Potts.
+\newblock Sentiment Symposium Tutorial.
+\newblock {\url{sentiment.christopherpotts.net}}, 2011.
+
+\bibitem{Parmar:Bhanderi:Shah:2014}
+ H.~Parmar, S.~Bhanderi and G.~Shah.
+\newblock Sentiment Mining of Movie Reviews using Random Forest with Tuned Hyperparameters.
+\newblock {\em International Conference on Information Science, At Kerala.}, 2014.
+
+\bibitem{Breiman:2001}
+ L.~Breiman.
+\newblock Random Forests.
+\newblock {\em Machine Learning, vol. 45. Issue 1, pp. 5-32.}, 2001.
+
+\bibitem{Aggarwal:2015}
+ C.~Aggarwal.
+\newblock Data Mining -- The Texbook.
+\newblock {\em Springer International Publishing}, 2015.
+
+\bibitem{IMDb:2016}
+\newblock Internet Movie Database.
+\newblock {\url{www.imdb.com}}, 2016.
+
+\bibitem{SciKit:2016}
+\newblock Scikit-Learn, Machine Learning in Python.
+\newblock {\url{scikit-learn.org}}, 2016.
+
+\bibitem{NLTK:2016}
+\newblock Natural Language Toolkit.
+\newblock {\url{www.nltk.org}}, 2016.
+
+\end{thebibliography}
+
+\end{multicols}
+
+\end{document}
